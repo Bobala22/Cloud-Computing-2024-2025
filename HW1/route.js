@@ -127,5 +127,3 @@ module.exports = http.createServer((req, res) => {
         userOps.deleteComm(req, res);
     }
 });
-
-

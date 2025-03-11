@@ -15,7 +15,7 @@ exports.getUsers = async function (req, res) {
         const users = result.rows;
 
         var response = {
-            message: "Here are the list of users",
+            message: "Here is the list of all users: ",
             users: users
         };
 
@@ -632,11 +632,84 @@ exports.deleteUser = async function (req, res) {
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({ error: 'User not found' }));
         } else {
+            await pool.query(`
+                DELETE FROM comments
+                WHERE post_id IN (SELECT id FROM posts WHERE user_id = $1)
+            `, [userId]);
+            await pool.query('DELETE FROM posts WHERE user_id = $1', [userId]);
             await pool.query('DELETE FROM users WHERE id = $1', [userId]);
 
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({ message: 'User deleted' }));
+        }
+    } catch (err) {
+        console.error('Error executing query', err.stack);
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ error: 'Internal Server Error' }));
+    }
+}
+
+exports.deletePosts = async function (req, res) {
+    res.statusCode = 405;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: 'Method not allowed' }));
+}
+
+exports.deletePost = async function (req, res) {
+    const postId = req.url.split('/')[4];
+    const userId = req.url.split('/')[2];
+
+    try {
+        const postResult = await pool.query('SELECT * FROM posts WHERE user_id = $1 AND id = $2', [userId, postId]);
+        const post = postResult.rows[0];
+
+        if (!post) {
+            res.statusCode = 404;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Post not found' }));
+        } else {
+            await pool.query('DELETE FROM comments WHERE user_id = $1 AND post_id = $2', [userId, postId]);
+            await pool.query('DELETE FROM posts WHERE user_id = $1 AND id = $2', [userId, postId]);
+
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ message: 'Post deleted' }));
+        }
+    } catch (err) {
+        console.error('Error executing query', err.stack);
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ error: 'Internal Server Error' }));
+    }
+}
+
+exports.deleteComms = async function (req, res) {
+    res.statusCode = 405;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: 'Method not allowed' }));
+}
+
+exports.deleteComm = async function (req, res) {
+    const commId = req.url.split('/')[6];
+    const postId = req.url.split('/')[4];
+    const userId = req.url.split('/')[2];
+
+    try {
+        const commResult = await pool.query('SELECT * FROM comments WHERE user_id = $1 AND post_id = $2 AND id = $3', [userId, postId, commId]);
+        const comment = commResult.rows[0];
+
+        if (!comment) {
+            res.statusCode = 404;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Comment not found' }));
+        } else {
+            await pool.query('DELETE FROM comments WHERE user_id = $1 AND post_id = $2 AND id = $3', [userId, postId, commId]);
+
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ message: 'Comment deleted' }));
         }
     } catch (err) {
         console.error('Error executing query', err.stack);
