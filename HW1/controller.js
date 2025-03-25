@@ -8,6 +8,55 @@ const pool = new Pool({
     port: 5432,
 });
 
+exports.login = function (req, res) {
+    let body = '';
+
+    req.on('data', chunk => {
+        body += chunk.toString();
+    });
+
+    req.on('end', async () => {
+        try {
+            const { email, password } = JSON.parse(body);
+
+            if (!password) {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Missing password in request body' }));
+                return;
+            }
+
+            const result = await pool.query('SELECT password FROM users WHERE email = $1', [email]);
+
+            if (result.rows.length === 0) {
+                res.statusCode = 401;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Invalid email or password' }));
+                return;
+            }
+
+            const bcrypt = require('bcrypt');
+            const match = await bcrypt.compare(password, result.rows[0].password);
+
+            if (match) {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ user: email }));
+            } else {
+                res.statusCode = 401;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Unauthorized' }));
+            }
+        }
+        catch (err) {
+            console.error('Error executing query', err.stack);
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Internal Server Error' }));
+        }
+    });
+};
+
 /* ----------------- GET ----------------- */
 exports.getUsers = async function (req, res) {
     try {
@@ -128,17 +177,18 @@ exports.getCommsByPostId = async function (req, res) {
         const result = await pool.query('SELECT * FROM comments WHERE user_id = $1 AND post_id = $2', [userId, postId]);
         const comments = result.rows;
 
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+
         if (comments.length == 0) {
-            res.statusCode = 404;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ error: 'No comments found' }));
+            res.end(JSON.stringify({
+                message: "No comments found",
+                comments: []}));
         } else {
             var response = {
                 message: "Here is the list of comments",
                 comments: comments
             };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(response));
         }
     } catch (err) {
@@ -189,14 +239,16 @@ exports.createUser = async function (req, res) {
     });
 
     req.on('end', async () => {
-        const { name, email } = JSON.parse(body);
+        const { name, email, password } = JSON.parse(body);
+        const bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        const passwordHash = await bcrypt.hash(password, saltRounds);
 
         try {
-            const result = await pool.query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email]);
+            const result = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, passwordHash]);
             const user = result.rows[0];
 
             var response = {
-                message: "User created",
                 user: user
             };
 
@@ -244,7 +296,7 @@ exports.createPost = async function (req, res) {
     });
 
     req.on('end', async () => {
-        const { title, content } = JSON.parse(body);
+        const { title, content, img_data } = JSON.parse(body);
         const userId = req.url.split('/')[2];
 
         try {
@@ -259,8 +311,8 @@ exports.createPost = async function (req, res) {
             }
 
             const result = await pool.query(
-                'INSERT INTO posts (user_id, title, content) VALUES ($1, $2, $3) RETURNING *',
-                [userId, title, content]
+                'INSERT INTO posts (user_id, title, content, b64_img) VALUES ($1, $2, $3, $4) RETURNING *',
+                [userId, title, content, img_data]
             );
             const post = result.rows[0];
 
@@ -314,11 +366,13 @@ exports.createComm = async function (req, res) {
     });
 
     req.on('end', async () => {
-        const { content } = JSON.parse(body);
+        // Only extract content, no author
+        const { content, author } = JSON.parse(body);
         const post_id = req.url.split('/')[4];
         const user_id = req.url.split('/')[2];
 
         try {
+            // Check if post exists
             const userAndPostResult = await pool.query('SELECT * FROM posts WHERE user_id = $1 AND id = $2', [user_id, post_id]);
             const userAndPost = userAndPostResult.rows[0];
 
@@ -329,17 +383,20 @@ exports.createComm = async function (req, res) {
                 return;
             }
 
-            const result = await pool.query('INSERT INTO comments (user_id, post_id, content) VALUES ($1, $2, $3)', [user_id, post_id, content]);
-            const comment = result.rows[0];
+            // Insert comment without author field and RETURN the created row with its ID
+            const result = await pool.query(
+                'INSERT INTO comments (user_id, post_id, content, author) VALUES ($1, $2, $3, $4) RETURNING id, content, created_at, author', 
+                [user_id, post_id, content ,author]
+            );
+            
+            // Get the newly created comment
+            const newComment = result.rows[0];
 
-            var response = {
-                message: "Comment created",
-                comment: comment
-            };
-
+            // Return the comment directly (not wrapped in a response object)
             res.statusCode = 201;
             res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(response));
+            res.end(JSON.stringify(newComment));
+            
         } catch (err) {
             console.error('Error executing query', err.stack);
             res.statusCode = 500;
@@ -347,7 +404,7 @@ exports.createComm = async function (req, res) {
             res.end(JSON.stringify({ error: 'Internal Server Error' }));
         }
     });
-}
+};
 
 exports.createCommById = async function (req, res) {
     const commId = req.url.split('/')[6];

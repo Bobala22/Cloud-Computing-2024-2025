@@ -1,0 +1,166 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+/* dbe2e5df */
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #dbe2e5df;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+body {
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+.welcome-page {
+  display: flex;
+  justify-content: space-between;
+  width: 80vw;
+  margin-left: 10vw;
+  
+}
+
+.content {
+  flex: 1;
+}
+
+.main-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+
+.title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  font-size: 100px;
+}
+
+.subtitle {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 30px;
+}
+
+.login-text {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  font-size: 30px;
+}
+
+#login-input {
+  width: 30vw;
+}
+
+.form-field {
+  border-radius: 15px; /* Rounded corners */
+  border: 1px solid #ccc; /* Subtle border */
+  padding: 15px; /* Inner spacing */
+  height: 30px; /* Taller input fields */
+  font-size: 16px; /* Adjust font size for better readability */
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Consistent font */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  transition: all 0.3s ease; /* Smooth transition for hover/focus effects */
+}
+
+.form-field:focus {
+  border-color: #007BFF; /* Highlight border on focus */
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
+  outline: none; /* Remove default outline */
+}
+
+.forgot-password {
+  text-align: center;
+  width: 100%; /* Ensure there's enough width to center the text */
+}
+
+.forgot-password:focus {
+  color: #007BFF; /* Highlight text on focus */
+}
+
+.google-login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  color: #444;
+  font-weight: 500;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.google-login-button:hover {
+  background-color: #f5f5f5;
+}
+
+.google-login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
