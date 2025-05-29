@@ -1,0 +1,13 @@
+runtime: nodejs20
+service: maintenance
+handlers:
+  - url: /static
+    static_dir: static
+    http_headers:
+      Access-Control-Allow-Origin: "*"
+      Access-Control-Allow-Methods: "GET, POST, PUT, DELETE, OPTIONS"
+      Access-Control-Allow-Headers: "Content-Type, Authorization"
+      
+  - url: /.*
+    script: auto
+    secure: always

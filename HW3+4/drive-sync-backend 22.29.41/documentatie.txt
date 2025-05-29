@@ -1,0 +1,18 @@
+https://dev.to/collegewap/how-to-deploy-nodejs-application-to-google-cloud-app-engine-1hbd
+https://chatgpt.com/share/67f0fc6e-95e0-8010-ab7e-b3544c6f0812
+https://cloud.google.com/sdk/gcloud
+https://cloud.google.com/workflows/docs/use-environment-variables
+
+Services: 
+default: https://cloud-app-455515.lm.r.appspot.com
+cars: https://cars-dot-cloud-app-455515.lm.r.appspot.com
+users: https://users-dot-cloud-app-455515.lm.r.appspot.com
+receipts: https://receipts-dot-cloud-app-455515.lm.r.appspot.com
+chatbot: https://chatbot-dot-cloud-app-455515.lm.r.appspot.com
+
+Azure:
+users: https://auth-drivesync-ebapcqbegrg4b3fa.polandcentral-01.azurewebsites.net
+cars: https://cars-drivesync-bfhxfncpb8a9e5hc.polandcentral-01.azurewebsites.net
+chatbot: https://chatbot-weather-drivesync-d3hjdnbbhudfhyhq.polandcentral-01.azurewebsites.net
+receipts: https://receipts-drivesync-g7fdbpdvafeyd2gd.polandcentral-01.azurewebsites.net
+maps: https://maps-drivesync-dbhegqdugebhhdd7.polandcentral-01.azurewebsites.net

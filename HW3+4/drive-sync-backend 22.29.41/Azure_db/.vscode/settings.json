@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/f32f3993-8272-4082-b764-86590e8be892/resourceGroups/appsvc_linux_polandcentral/providers/Microsoft.Web/sites/azure-db-drivesync",
+    "appService.deploySubpath": "."
+}

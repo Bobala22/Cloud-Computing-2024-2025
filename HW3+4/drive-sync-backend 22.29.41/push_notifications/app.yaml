@@ -1,0 +1,8 @@
+# functions.yaml
+name: sendSpeedAlert
+runtime: nodejs20
+entryPoint: sendSpeedAlert
+source: .
+trigger:
+  eventType: providers/cloud.firestore/eventTypes/document.write
+  resource: projects/cloud-app-455515/databases/(default)/documents/vehicles/{vehicleId}
